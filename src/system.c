@@ -264,47 +264,43 @@ void checkAccountDetails(struct User u) {
     return;
   }
 
-  printf("\n\t\tAccount number: %d\n\t\tDeposit date: %d/%d/%d\n\t\tCountry: "
-         "%s \n\t\tPhone number: %d \n\t\tAmount deposited: $%.2f \n\t\tType "
-         "of account: %s\n",
-         r.accountNbr, r.deposit.day, r.deposit.month, r.deposit.year,
-         r.country, r.phone, r.amount, r.accountType);
-
-  double rate;
-  if (strcmp(r.accountType, "savings") == 0) {
-    rate = 0.07;
-    double interest = r.amount * (1 + rate / 12) - r.amount;
-    printf("\n\t\tYou will get $%.2f as interest on day %d of every month.\n",
-           interest, r.deposit.day);
-  } else if (strcmp(r.accountType, "fixed01") == 0) {
-    rate = 0.04;
-    double interest = r.amount * (1 + rate / 12) - r.amount;
-    interest *= 12;
-    printf("\n\t\tYou will get $%.2f as interest on %d/%d/%d.\n", interest,
-           r.deposit.month, r.deposit.day, r.deposit.year + 1);
-  } else if (strcmp(r.accountType, "fixed02") == 0) {
-    rate = 0.05;
-    double interest = r.amount * (1 + rate / 12) - r.amount;
-    interest *= 24;
-    printf("\n\t\tYou will get $%.2f as interest on %d/%d/%d.\n", interest,
-           r.deposit.month, r.deposit.day, r.deposit.year + 2);
-  } else if (strcmp(r.accountType, "fixed03") == 0) {
-    rate = 0.08;
-    double interest = r.amount * (1 + rate / 12) - r.amount;
-    interest *= 36;
-    printf("\n\t\tYou will get $%.2f as interest on %d/%d/%d.\n", interest,
-           r.deposit.month, r.deposit.day, r.deposit.year + 3);
-  } else if (strcmp(r.accountType, "current") == 0) {
-    printf("\n\t\tYou will not get interests because the account is of type "
-           "current\n");
-  } else {
-    printf("\n\t\tInvalid account type.\n");
-    stayOrReturn(0, checkAccountDetails, u);
-    return;
-  }
+  printAccountDetails(r, userName);
+  printInterest(r);
   success(u);
 }
 
+
+void printAccountDetails(struct Record r, const char* userName) {
+  printf("\n\t\tAccount number: %d\n\t\tDeposit date: %d/%d/%d\n\t\tCountry: %s\n\t\tPhone number: %d\n\t\tAmount deposited: $%.2f\n\t\tType of account: %s\n",  r.accountNbr, r.deposit.day, r.deposit.month, r.deposit.year, r.country, r.phone, r.amount, r.accountType);
+}
+
+void printInterest(struct Record r) {
+    double rate, interest;
+    if (strcmp(r.accountType, "saving") == 0) {
+        rate = 0.07;
+        interest = r.amount * (1 + rate / 12) - r.amount;
+        printf("\n\t\tYou will get $%.2f as interest on day %d of every month.\n", interest, r.deposit.day);
+    } else if (strcmp(r.accountType, "fixed01") == 0) {
+        rate = 0.04;
+        interest = r.amount * (1 + rate / 12) - r.amount;
+        interest *= 12;
+        printf("\n\t\tYou will get $%.2f as interest on %d/%d/%d.\n", interest, r.deposit.month, r.deposit.day, r.deposit.year + 1);
+    } else if (strcmp(r.accountType, "fixed02") == 0) {
+        rate = 0.05;
+        interest = r.amount * (1 + rate / 12) - r.amount;
+        interest *= 24;
+        printf("\n\t\tYou will get $%.2f as interest on %d/%d/%d.\n", interest, r.deposit.month, r.deposit.day, r.deposit.year + 2);
+    } else if (strcmp(r.accountType, "fixed03") == 0) {
+        rate = 0.08;
+        interest = r.amount * (1 + rate / 12) - r.amount;
+        interest *= 36;
+        printf("\n\t\tYou will get $%.2f as interest on %d/%d/%d.\n", interest,r.deposit.month, r.deposit.day, r.deposit.year + 3);
+    } else if (strcmp(r.accountType, "current") == 0) {
+        printf("\n\t\tYou will not get interests because the account is of type current\n");
+    } else {
+     printf("\nInvalid input! Please enter a valid account ID.\n");
+    }
+}
 
 void makeTransaction(struct User u) {
     struct Record r;
@@ -341,7 +337,7 @@ void makeTransaction(struct User u) {
             // Get user choice for deposit or withdrawal
             int option;
             double amount;
-            printf("Enter 1 to deposit or 2 to withdraw: ");
+            printf("1: deposit \n 2: withdraw: \n ");
             scanf("%d", &option);
 
             if (option == 1) {
@@ -418,7 +414,6 @@ void removeAccount(struct User u) {
         if (r.accountNbr == accountId && strcmp(userName, u.name) == 0) {
             found = 1;
             printf("✔ Account removed successfully!\n");
-            // Do not write this record to the temp file
         } else {
             saveAccountToFile(temp, u, r);  // Write non-matching records to the temp file
         }
@@ -530,10 +525,8 @@ void checkAllAccounts(struct User u) {
     if (strcmp(userName, u.name) == 0) {
       accountsFound = 1;
       printf("\t\t_____________________\n");
-         printf("\nAccount number: %d\nDeposit Date: %d/%d/%d \nCountry: %s \nPhone number: %d \nAmount deposited: $%.2f \nType Of Account: %s\n",
-                   r.accountNbr, r.deposit.day, r.deposit.month, r.deposit.year,
-                   r.country, r.phone, r.amount, r.accountType);
-            displayInterest(r);
+            printAccountDetails(r,userName);
+            printInterest(r);
           //  printf("intert?");
     }
   }
@@ -617,7 +610,7 @@ while (fscanf(rf, "%d %*d %*s %d %d/%d/%d %s %d %lf %s\n",
       printf("\n\t\tEnter amount to deposit: $");
       scanf("%lf", &r.amount);
 
-      printf("\n\t\tChoose the type of account:\n\n\t\t -> savings\n\t\t -> "
+      printf("\n\t\tChoose the type of account:\n\n\t\t -> saving\n\t\t -> "
              "current\n\t\t -> fixed01(for 1 year)\n\t\t -> fixed02(for 2 "
              "years)\n\t\t -> "
              "fixed03(for 3 "
